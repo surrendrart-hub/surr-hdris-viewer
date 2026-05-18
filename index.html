@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HDRI Viewer professionnel pour workflows VFX - Visualisation 3D et 2D des fichiers HDR, EXR, TIFF, DPX." />
+    <title>SUR — HDRIs Viewer</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <!--
+        Chargement du config auto-généré par start-server.bat.
+        Définit window.__SUR_HDRI_PROJECT_ROOT__ = "C:\…\sur - HDRIs VIEWER".
+        Si le serveur a été lancé autrement (sans .bat), ce script échoue
+        silencieusement et le viewer demandera le chemin manuellement.
+    -->
+    <script src="config.js" onerror="window.__SUR_HDRI_PROJECT_ROOT__ = '';"></script>
+
+    <!--
+        Import map pour Three.js (ES Modules natifs via CDN).
+    -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+
+    <!-- ============================================================
+         HEADER : Logo + Titre de l'application (centré via .wrapper)
+         ============================================================ -->
+    <header class="app-header">
+        <div class="wrapper">
+            <div class="header-left">
+                <a class="logo-placeholder" id="app-logo"
+                   href="https://www.surrendr.art"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Visiter www.surrendr.art">SURR</a>
+                <div class="header-titles">
+                    <h1 class="app-title">HDRIs Viewer</h1>
+                    <span class="app-subtitle">VFX / DCC Preview Tool</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="file-info" id="file-info">— Aucun fichier chargé —</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+         MAIN : 3 colonnes (Library gauche / Viewers / Library droite)
+         ============================================================ -->
+    <main class="app-main">
+
+        <!-- ===== LIBRARY GAUCHE : Skies + Outdoor ===== -->
+        <aside class="library-panel library-panel-left">
+            <header class="library-panel-header">
+                <span class="library-panel-title">Library</span>
+                <button class="library-refresh" title="Rafraîchir la library" type="button">↻</button>
+            </header>
+            <div class="library-categories">
+                <section class="library-category" data-category="skies">
+                    <header class="library-category-header">
+                        <span>Skies</span>
+                        <span class="library-count"></span>
+                    </header>
+                    <ul class="library-items"></ul>
+                </section>
+                <section class="library-category" data-category="outdoor">
+                    <header class="library-category-header">
+                        <span>Outdoor</span>
+                        <span class="library-count"></span>
+                    </header>
+                    <ul class="library-items"></ul>
+                </section>
+            </div>
+        </aside>
+
+        <!-- ===== COLONNE CENTRALE : viewport 3D + viewer 2D ===== -->
+        <div class="viewers-column">
+            <!-- Section 3D (haut) -->
+            <section class="viewer-section" id="viewport-3d">
+                <div class="viewer-label">
+                    <span class="viewer-label-dot"></span>
+                    3D Preview — Sphere (Equirectangular Mapping)
+                </div>
+                <div class="viewer-content" id="viewport-3d-content">
+                    <div class="viewer-stage" id="viewport-3d-stage"></div>
+                </div>
+            </section>
+
+            <!-- Séparateur visuel entre les deux viewers -->
+            <div class="viewer-divider" aria-hidden="true"></div>
+
+            <!-- Section 2D (bas) -->
+            <section class="viewer-section" id="viewer-2d">
+                <div class="viewer-label">
+                    <span class="viewer-label-dot"></span>
+                    2D Flat View — Equirectangular Projection
+                </div>
+                <div class="viewer-content" id="viewer-2d-content">
+                    <div class="viewer-stage" id="viewer-2d-stage"></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===== LIBRARY DROITE : Indoor + Studio ===== -->
+        <aside class="library-panel library-panel-right">
+            <header class="library-panel-header">
+                <span class="library-panel-title">Library</span>
+                <button class="library-refresh" title="Rafraîchir la library" type="button">↻</button>
+            </header>
+            <div class="library-categories">
+                <section class="library-category" data-category="indoor">
+                    <header class="library-category-header">
+                        <span>Indoor</span>
+                        <span class="library-count"></span>
+                    </header>
+                    <ul class="library-items"></ul>
+                </section>
+                <section class="library-category" data-category="studio">
+                    <header class="library-category-header">
+                        <span>Studio</span>
+                        <span class="library-count"></span>
+                    </header>
+                    <ul class="library-items"></ul>
+                </section>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- ============================================================
+         OVERLAY : Drag & Drop (caché par défaut, montré on dragenter)
+         ============================================================ -->
+    <div class="dragdrop-overlay" id="dragdrop-overlay">
+        <div class="dragdrop-box">
+            <div class="dragdrop-icon">↓</div>
+            <div class="dragdrop-text">Glissez votre HDRI / Image ici</div>
+            <div class="dragdrop-formats">.hdr · .exr · .tiff · .dpx · .jpg · .png</div>
+        </div>
+    </div>
+
+    <!-- Indication permanente discrète (toujours visible) -->
+    <div class="dragdrop-hint" id="dragdrop-hint">
+        Glissez votre HDRI/Image ici
+    </div>
+
+    <!-- ============================================================
+         LOADER : Indicateur de chargement (caché par défaut)
+         ============================================================ -->
+    <div class="loader-overlay" id="loader-overlay" hidden>
+        <div class="loader-box">
+            <div class="loader-spinner"></div>
+            <div class="loader-text" id="loader-text">Décodage du fichier…</div>
+            <div class="loader-progress">
+                <div class="loader-progress-bar" id="loader-progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer minimal -->
+    <footer class="app-footer">
+        <div class="wrapper">
+            <span>SUR · HDRIs Viewer — VFX preview tool</span>
+        </div>
+    </footer>
+
+    <!-- Script principal ES module -->
+    <script type="module" src="js/main.js"></script>
+
+</body>
+</html>

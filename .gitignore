@@ -1,0 +1,39 @@
+# ============================================================
+# SUR - HDRIs Viewer .gitignore
+# ============================================================
+
+# Auto-généré par start-server.bat / start-server.sh
+# (contient le chemin local de l'utilisateur, ne doit pas être versionné)
+config.js
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node (si on ajoute des outils dev plus tard)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================================================
+# Fichiers HDRIs lourds — décommente si tu ne veux PAS versionner
+# tes propres HDRIs (qui peuvent peser plusieurs Go pour des 8K).
+# Pour partager le viewer SANS les HDRIs, garde ces lignes actives.
+# Pour partager AVEC des HDRIs (ex: démo Polyhaven), commente-les.
+# ============================================================
+# assets/**/*.hdr
+# assets/**/*.exr
+# assets/**/*.dpx
+# assets/**/*.tif
+# assets/**/*.tiff
+# NB : on garde les thumbnails (_thumb.jpg) et le manifest.json
+#      pour que la library web reste fonctionnelle sans les sources.
