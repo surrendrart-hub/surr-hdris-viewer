@@ -35,7 +35,7 @@ Il y a **deux façons** d'utiliser le viewer. Choisis selon ton besoin.
 
 Le viewer est déployé en ligne — rien à installer.
 
-👉 [Ouvrir le viewer] https://surrendrart-hub.github.io/surr-hdris-viewer/
+👉 [Ouvrir le viewer] [https://surrendrart-hub.github.io/surr-hdris-viewer/](https://surrendrart-hub.github.io/Surr-MiniTool-hdris-viewer/)
 
 Glisse-dépose tes propres fichiers `.hdr` / `.exr` / `.tiff` / `.dpx` /
 `.jpg` / `.png` directement dans la page. La library latérale affichera
